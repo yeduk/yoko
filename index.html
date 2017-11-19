@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Operational Transform using node.js</title>
+    <link rel="stylesheet" href="http://codemirror.net/lib/codemirror.css">
+    <script src="http://codemirror.net/lib/codemirror.js"></script>
+            
+  
+    
+    <style type="text/css" >
+      body
+      {
+        margin: 0;
+        padding: 0;
+        max-width:inherit;
+        height: 100%;
+      }
+      html, form, .CodeMirror, .CodeMirror-scroll
+      {
+        height: 100%;        
+      }
+    </style>
+  </head>
+  <body>
+    <textarea id="textit" placeholder="Input text here."></textarea>
+
+    <script>
+       var editor = CodeMirror.fromTextArea(document.getElementById("textit"), {
+ 
+      });
+    </script>
+    
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var socket = io.connect();
+  socket.on('refresh', function (data) {
+    editor.setValue(data.body);
+  });
+  socket.on('change', function (data) {
+    console.log(data);
+    editor.replaceRange(data.text, data.from, data.to);
+  });
+  editor.on('change', function (i, op) {
+    console.log(op);
+    socket.emit('change', op);
+    socket.emit('refresh', editor.getValue());
+  });
+</script>
+
+  </body>
+</html>
